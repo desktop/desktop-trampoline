@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "bin": {
+    "ask-pass-trampoline": "build/Release/ask-pass-trampoline"
+  },
+  "types": "./keytar.d.ts",
   "scripts": {
     "install": "node-gyp rebuild"
   },
