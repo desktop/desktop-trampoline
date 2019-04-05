@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
   "devDependencies": {
     "node-gyp": "^3.8.0"
   }
