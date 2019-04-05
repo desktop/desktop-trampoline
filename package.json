@@ -1,6 +1,5 @@
 {
-  "name": "desktop-askpass-trampoline",
-  "version": "1.0.0",
+  "name": "desktop-ask-pass-trampoline",
   "main": "index.js",
   "license": "MIT",
   "bin": {
