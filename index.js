@@ -1,6 +1,6 @@
 const Path = require("path");
 
-export function getAskPassTrampolinePath() {
+function getAskPassTrampolinePath() {
   return Path.join(
     __dirname,
     "build",
@@ -10,3 +10,7 @@ export function getAskPassTrampolinePath() {
       : "ask-pass-trampoline"
   );
 }
+
+module.exports = {
+  getAskPassTrampolinePath
+};
