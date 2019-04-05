@@ -1,0 +1,9 @@
+{
+  "name": "desktop-askpass-trampoline",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "node-gyp": "^3.8.0"
+  }
+}
