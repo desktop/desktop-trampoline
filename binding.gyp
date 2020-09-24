@@ -7,7 +7,12 @@
           'src/ask-pass-trampoline.c'
         ],
         'conditions': [
-          ['OS=="win"', { 'defines': [ 'WINDOWS' ] }]
+          ['OS=="win"', {
+            'defines': [ 'WINDOWS' ],
+            'link_settings': {
+              'libraries': [ 'Shlwapi.lib' ]
+            }
+          }]
         ]
       },
     ],
