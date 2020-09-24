@@ -5,15 +5,24 @@ const { getAskPassTrampolinePath } = require("../index");
 const { AssertionError } = require("assert");
 
 const trampolinePath = getAskPassTrampolinePath();
+let anyFailures = false;
+
+process.on("beforeExit", () => {
+  if (anyFailures) {
+    process.exit(1);
+  }
+});
 
 function assert(condition, message) {
   if (!condition) {
+    anyFailures = true;
     throw new AssertionError({ message, expected: true, actual: condition });
   }
 }
 
 function assert_equal(actual, expected, message) {
   if (actual !== expected) {
+    anyFailures = true;
     throw new AssertionError({
       message: message || `expected ${actual} to equal ${expected}`,
       expected,
@@ -28,6 +37,7 @@ async function test(name, fn) {
     await fn();
     console.log(`[PASS] ${name}`);
   } catch (e) {
+    anyFailures = true;
     console.error(e);
     console.error(`[FAIL] ${name}`);
   }
@@ -72,5 +82,5 @@ test("smoke test", async () => {
     env: { DESKTOP_PATH: echoPath, DESKTOP_ASKPASS_SCRIPT: "scriptPath" },
   });
   assert_equal(code, 0, "expected trampoline to succeed with env vars");
-  assert_equal(stdout, "scriptPath Username\n");
+  assert_equal(stdout, "scriptPath Ussername\n");
 });
