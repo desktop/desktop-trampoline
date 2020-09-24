@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   putenv("ELECTRON_NO_ATTACH_CONSOLE=1");
 
   #if WINDOWS
-    err = spawnl(_P_WAIT, desktopPath, desktopPath, desktopAskPassScriptPath, argv[1], NULL);
+    err = _spawnl(_P_WAIT, desktopPath, desktopPath, desktopAskPassScriptPath, argv[1], NULL);
   #else
     err = execl(desktopPath, desktopPath, desktopAskPassScriptPath, argv[1], NULL);
   #endif
