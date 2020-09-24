@@ -7,6 +7,7 @@
   },
   "types": "./keytar.d.ts",
   "scripts": {
+    "build": "node-gyp rebuild",
     "install": "node-gyp rebuild"
   },
   "devDependencies": {
