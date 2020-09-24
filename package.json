@@ -10,6 +10,6 @@
     "install": "node-gyp rebuild"
   },
   "devDependencies": {
-    "node-gyp": "^3.8.0"
+    "node-gyp": "^7.1.0"
   }
 }
