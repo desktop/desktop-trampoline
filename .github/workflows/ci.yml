@@ -31,3 +31,6 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install and build
         run: yarn
+      - name: Test
+        run: node test/index.js
+        shell: bash
