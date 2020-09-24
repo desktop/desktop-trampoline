@@ -7,7 +7,7 @@
   #include <process.h>
   #include <windows.h>
   #include <shlwapi.h>
-  
+
   // Use POSIX helpers function on Windows
   // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/putenv-wputenv?view=vs-2019
   #define putenv _putenv
