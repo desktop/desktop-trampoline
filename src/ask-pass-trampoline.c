@@ -43,11 +43,11 @@ int main(int argc, char **argv)
   #if WINDOWS
     // I don't know what I'm doing!
     char quotedDesktopPath[MAX_PATH];
-    strcpy(quotedDesktopPath, desktopPath);
+    strncpy(quotedDesktopPath, desktopPath, sizeof(quotedDesktopPath));
     PathQuoteSpaces(quotedDesktopPath);
 
     char quotedDesktopAskPassScriptPath[MAX_PATH];
-    strcpy(quotedDesktopAskPassScriptPath, desktopAskPassScriptPath);
+    strncpy(quotedDesktopAskPassScriptPath, desktopAskPassScriptPath, sizeof(quotedDesktopAskPassScriptPath));
     PathQuoteSpaces(quotedDesktopAskPassScriptPath);
 
     err = _spawnl(_P_WAIT, desktopPath, quotedDesktopPath, desktopAskPassScriptPath, argv[1], NULL);
