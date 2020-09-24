@@ -82,5 +82,5 @@ test("smoke test", async () => {
     env: { DESKTOP_PATH: echoPath, DESKTOP_ASKPASS_SCRIPT: "scriptPath" },
   });
   assert_equal(code, 0, "expected trampoline to succeed with env vars");
-  assert_equal(stdout, "scriptPath Ussername\n");
+  assert_equal(stdout, "scriptPath Username\n");
 });
