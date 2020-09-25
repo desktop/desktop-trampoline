@@ -5,7 +5,7 @@
   "bin": {
     "ask-pass-trampoline": "build/Release/ask-pass-trampoline"
   },
-  "types": "./keytar.d.ts",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "node-gyp rebuild",
     "install": "node-gyp rebuild",
