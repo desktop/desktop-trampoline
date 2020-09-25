@@ -34,5 +34,5 @@ jobs:
       - name: Install and build
         run: yarn
       - name: Test
-        run: node test/index.js
+        run: yarn test
         shell: bash
