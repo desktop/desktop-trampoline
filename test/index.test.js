@@ -7,26 +7,31 @@ const { getAskPassTrampolinePath } = require("../index");
 const trampolinePath = getAskPassTrampolinePath();
 const run = promisify(execFile);
 
-test("trampoline exists and is a regular file", async () =>
-  expect((await stat(trampolinePath)).isFile()).toBe(true));
+describe("ask-pass-trampoline", () => {
+  it("exists and is a regular file", async () =>
+    expect((await stat(trampolinePath)).isFile()).toBe(true));
 
-test("can be executed by current process", () =>
-  access(trampolinePath, constants.X_OK));
+  it("can be executed by current process", () =>
+    access(trampolinePath, constants.X_OK));
 
-test("fails when required environment variables are missing", () =>
-  expect(run(trampolinePath, ["Username"])).rejects.toThrow());
+  it("fails when required environment variables are missing", () =>
+    expect(run(trampolinePath, ["Username"])).rejects.toThrow());
 
-test("smoke test", async () => {
-  const echoPath =
-    process.platform === "win32"
-      ? "C:\\Program Files\\Git\\usr\\bin\\echo.exe"
-      : "/bin/echo";
+  it("forwards arguments correctly", async () => {
+    const echoPath =
+      process.platform === "win32"
+        ? "C:\\Program Files\\Git\\usr\\bin\\echo.exe"
+        : "/bin/echo";
 
-  const env = { DESKTOP_PATH: echoPath, DESKTOP_ASKPASS_SCRIPT: "scriptPath" };
-  const opts = { env };
+    const env = {
+      DESKTOP_PATH: echoPath,
+      DESKTOP_ASKPASS_SCRIPT: "foo bar",
+    };
+    const opts = { env };
 
-  expect(run(trampolinePath, ["Username"], opts)).resolves.toEqual({
-    stdout: "scriptPath Username\n",
-    stderr: "",
+    expect(run(trampolinePath, ["baz"], opts)).resolves.toEqual({
+      stdout: "foo bar baz\n",
+      stderr: "",
+    });
   });
 });
