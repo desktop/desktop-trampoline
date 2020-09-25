@@ -24,7 +24,7 @@ function assert_equal(actual, expected, message) {
   if (actual !== expected) {
     anyFailures = true;
     throw new AssertionError({
-      message: message || `expected ${actual} to equal ${expected}`,
+      message,
       expected,
       actual,
       operator: "===",
@@ -38,7 +38,12 @@ async function test(name, fn) {
     console.log(`[PASS] ${name}`);
   } catch (e) {
     anyFailures = true;
-    console.error(e);
+    if (e instanceof AssertionError) {
+      console.error(`Assertion failed: ${e.message}`);
+      console.error(e.stack.split("\n").slice(3).join("\n"));
+    } else {
+      console.error(e);
+    }
     console.error(`[FAIL] ${name}`);
   }
 }
