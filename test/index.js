@@ -53,7 +53,7 @@ function run(args, options) {
     cp.stdout.setEncoding("utf8").on("data", (chunk) => (stdout += chunk));
     cp.stderr.setEncoding("utf8").on("data", (chunk) => (stderr += chunk));
 
-    cp.on("exit", (code) => {
+    cp.on("close", (code) => {
       resolve({ code, stdout, stderr });
     });
   });
