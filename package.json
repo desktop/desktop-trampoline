@@ -8,9 +8,11 @@
   "types": "./keytar.d.ts",
   "scripts": {
     "build": "node-gyp rebuild",
-    "install": "node-gyp rebuild"
+    "install": "node-gyp rebuild",
+    "test": "jest"
   },
   "devDependencies": {
+    "jest": "^26.4.2",
     "node-gyp": "^7.1.0"
   }
 }
