@@ -34,4 +34,18 @@ describe('ask-pass-trampoline', () => {
       stderr: '',
     })
   })
+
+  it("doesn't invoke Desktop when asked for a username", () => {
+    const env = {
+      DESKTOP_PATH: 'i am not a real path',
+      DESKTOP_ASKPASS_SCRIPT: 'neither am i',
+      DESKTOP_USERNAME: 'supercoolusername',
+    }
+    const opts = { env }
+
+    expect(run(trampolinePath, ['Username'], opts)).resolves.toEqual({
+      stdout: 'supercoolusername',
+      stderr: '',
+    })
+  })
 })

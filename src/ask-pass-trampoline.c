@@ -103,8 +103,7 @@ static int windows_execl(const char *path, ...)
 
 int main(int argc, char **argv)
 {
-  char *desktopPath;
-  char *desktopAskPassScriptPath;
+  char *desktopPath, *desktopAskPassScriptPath, *prompt;
   int err = 0;
 
   if (argc < 2)
@@ -113,6 +112,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  prompt = argv[1];
   desktopPath = getenv("DESKTOP_PATH");
   desktopAskPassScriptPath = getenv("DESKTOP_ASKPASS_SCRIPT");
 
@@ -122,10 +122,20 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  // Happy path. If we've got access to a username and we're asked for
+  // one there's really no need to spin up a Desktop process just to
+  // echo it back to us.
+  if (strncmp(prompt, "Username", strlen(prompt)) == 0) {
+    if (getenv("DESKTOP_USERNAME") != NULL) {
+      fprintf(stdout, "%s", getenv("DESKTOP_USERNAME"));
+      return 0;
+    }
+  }
+
   putenv("ELECTRON_RUN_AS_NODE=1");
   putenv("ELECTRON_NO_ATTACH_CONSOLE=1");
 
-  err = execl(desktopPath, desktopPath, desktopAskPassScriptPath, argv[1], NULL);
+  err = execl(desktopPath, desktopPath, desktopAskPassScriptPath, prompt, NULL);
 
   if (err != 0) {
     fprintf(stderr, "ERROR: Failed to launch \"%s\": %s\n", desktopPath, strerror(errno));
