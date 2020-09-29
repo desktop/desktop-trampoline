@@ -10,6 +10,7 @@ jobs:
   build:
     name: ${{ matrix.friendlyName }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +23,6 @@ jobs:
             friendlyName: Windows
           - os: ubuntu-latest
             friendlyName: Linux
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v2
         with:
@@ -33,6 +33,8 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install and build
         run: yarn
+      - name: Lint
+        run: yarn lint
       - name: Test
         run: yarn test
         shell: bash

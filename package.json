@@ -9,10 +9,13 @@
   "scripts": {
     "build": "node-gyp rebuild",
     "install": "node-gyp rebuild",
-    "test": "jest"
+    "test": "jest",
+    "lint": "prettier -c **/*.js **/*.md",
+    "lint:fix": "prettier --write **/*.js **/*.md"
   },
   "devDependencies": {
     "jest": "^26.4.2",
-    "node-gyp": "^7.1.0"
+    "node-gyp": "^7.1.0",
+    "prettier": "^2.1.2"
   }
 }
