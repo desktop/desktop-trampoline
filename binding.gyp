@@ -1,10 +1,10 @@
   {
     'targets': [
       {
-        'target_name': 'ask-pass-trampoline',
+        'target_name': 'askpass-trampoline',
         'type': 'executable',
         'sources': [
-          'src/ask-pass-trampoline.c'
+          'src/askpass-trampoline.c'
         ],
         'conditions': [
           ['OS=="win"', {

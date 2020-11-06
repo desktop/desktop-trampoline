@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 
   if (argc < 2)
   {
-    fprintf(stderr, "USAGE: ask-pass-trampoline PROMPT\n");
+    fprintf(stderr, "USAGE: askpass-trampoline PROMPT\n");
     return 1;
   }
 

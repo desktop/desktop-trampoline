@@ -59,7 +59,7 @@ The equivalent Bash shell code looks like this:
 
 ```sh
 # environment variable
-GIT_ASKPASS="C:/some/path/to/ask-pass-trampoline.exe" \
+GIT_ASKPASS="C:/some/path/to/askpass-trampoline.exe" \
   # ensure Git doesn't block the process waiting for the user to provide input
   GIT_TERMINAL_PROMPT=0 \
   git \

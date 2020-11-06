@@ -1,9 +1,9 @@
 {
-  "name": "desktop-ask-pass-trampoline",
+  "name": "askpass-trampoline",
   "main": "index.js",
   "license": "MIT",
   "bin": {
-    "ask-pass-trampoline": "build/Release/ask-pass-trampoline"
+    "askpass-trampoline": "build/Release/askpass-trampoline"
   },
   "types": "./index.d.ts",
   "scripts": {
