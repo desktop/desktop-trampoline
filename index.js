@@ -6,8 +6,8 @@ function getAskPassTrampolinePath() {
     'build',
     'Release',
     process.platform === 'win32'
-      ? 'ask-pass-trampoline.exe'
-      : 'ask-pass-trampoline'
+      ? 'askpass-trampoline.exe'
+      : 'askpass-trampoline'
   )
 }
 
