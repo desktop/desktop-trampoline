@@ -1,1 +1,1 @@
-export function getAskPassTrampolinePath(): string;
+export function getDesktopTrampolinePath(): string

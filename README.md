@@ -1,7 +1,8 @@
-# Desktop GIT_ASKPASS Trampoline
+# Desktop Trampoline
 
 A cross-platform no-dependency C executable trampoline which lets GitHub Desktop
-invoke itself in order to provide Git with credentials through GIT_ASKPASS.
+intercede in order to provide Git with any additional info it needs (like
+credentials through `GIT_ASKPASS`).
 
 The intention is to support the same platforms that
 [Electron supports](https://www.electronjs.org/docs/tutorial/support#supported-platforms).
@@ -58,8 +59,8 @@ Git operation that might require authentication.
 The equivalent Bash shell code looks like this:
 
 ```sh
-# environment variable
-GIT_ASKPASS="C:/some/path/to/askpass-trampoline.exe" \
+  # environment variable
+  GIT_ASKPASS="C:/some/path/to/desktop-trampoline.exe" \
   # ensure Git doesn't block the process waiting for the user to provide input
   GIT_TERMINAL_PROMPT=0 \
   git \
@@ -71,11 +72,12 @@ GIT_ASKPASS="C:/some/path/to/askpass-trampoline.exe" \
 Desktop also sets these environment variables when spawning Git, as it's the
 only way to pass information down to the authentication process:
 
-- `DESKTOP_PATH` - the path to the GitHub Desktop executable to launch
-- `DESKTOP_ASKPASS_SCRIPT` - the script to execute and perform the
-  authentication lookup
 - `DESKTOP_USERNAME` - the account associated with the current repository
 - `DESKTOP_ENDPOINT` - the endpoint associated with the account
+
+With this trampoline, all this info can be passed from GitHub Desktop to Git,
+and then back to GitHub Desktop via a TCP socket when Git requires us the user
+credentials, so Desktop can act based on that username and endpoint.
 
 ## Why Need An Executable?
 
@@ -112,3 +114,14 @@ issues.
 
 Thankfully if you set an executable for your `GIT_ASKPASS` environment variable,
 it avoids all these problems as Windows can just execute the program.
+
+## Why Need A TCP Server?
+
+The main reason for using a TCP server is that it provides a generic and very
+powerful mechanism for GitHub Desktop to interoperate with Git and handle any
+other protocol Git would require in order to supply any kind of info.
+
+Thanks to this, with only one generic trampoline that forwards everything via
+that TCP socket, the implementation for every possible protocol like
+`GIT_ASKPASS` can live within the GitHub Desktop codebase instead of having
+multiple trampoline executables.

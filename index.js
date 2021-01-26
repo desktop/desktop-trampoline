@@ -1,16 +1,16 @@
 const Path = require('path')
 
-function getAskPassTrampolinePath() {
+function getDesktopTrampolinePath() {
   return Path.join(
     __dirname,
     'build',
     'Release',
     process.platform === 'win32'
-      ? 'askpass-trampoline.exe'
-      : 'askpass-trampoline'
+      ? 'desktop-trampoline.exe'
+      : 'desktop-trampoline'
   )
 }
 
 module.exports = {
-  getAskPassTrampolinePath,
+  getDesktopTrampolinePath,
 }

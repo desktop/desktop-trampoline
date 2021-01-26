@@ -7,37 +7,23 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef WINDOWS
-  #include <process.h>
-  #include <windows.h>
-  #include <shlwapi.h>
-
-  // Use POSIX helpers function on Windows
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/putenv-wputenv?view=vs-2019
-  #define putenv _putenv
-#else
-  // execv and friends on POSIX
-  #include <unistd.h>
-#endif
-
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
-  char *desktopPortString, *desktopAction, *prompt;
+  char *desktopPortString, *prompt;
   int err = 0;
 
   if (argc < 2)
   {
-    fprintf(stderr, "USAGE: askpass-trampoline PROMPT\n");
+    fprintf(stderr, "USAGE: desktop-trampoline PROMPT\n");
     return 1;
   }
 
   prompt = argv[1];
   desktopPortString = getenv("DESKTOP_PORT");
-  desktopAction = getenv("DESKTOP_ACTION");
 
-  if (desktopPortString == NULL || desktopAction == NULL)
+  if (desktopPortString == NULL)
   {
-    fprintf(stderr, "ERROR: Missing DESKTOP_PORT or DESKTOP_ACTION environment variables\n");
+    fprintf(stderr, "ERROR: Missing DESKTOP_PORT environment variable\n");
     return 1;
   }
 
@@ -50,16 +36,34 @@ int main(int argc, char **argv)
   remote.sin_port = htons(desktopPort);
   connect(fd, (struct sockaddr *)&remote, sizeof(struct sockaddr_in));
 
-  // Send the action first
-  send(fd, desktopAction, strlen(desktopAction) + 1, 0);
+  // Send the number of arguments
+  char argcString[33];
+  snprintf(argcString, 33, "%d", argc);
+  send(fd, argcString, strlen(argcString) + 1, 0);
 
   // Send each argument separated by \0
-  for (int idx = 1; idx < argc; idx++) {
+  for (int idx = 0; idx < argc; idx++) {
     send(fd, argv[idx], strlen(argv[idx]) + 1, 0);
   }
 
-  // Send a final '\0' to indicate end of arguments
-  send(fd, "\0", 1, 0);
+  // Get the number of environment variables
+  int envc = 0;
+  for (char **env = envp; *env != 0; env++) {
+    envc++;  
+  }
+
+  // Send the number of environment variables
+  char envcString[33];
+  snprintf(envcString, 33, "%d", envc);
+  send(fd, envcString, strlen(envcString) + 1, 0);
+
+  // Send the environment variables
+  for (char **env = envp; *env != 0; env++) {
+    char *thisEnv = *env;
+    send(fd, thisEnv, strlen(thisEnv) + 1, 0);
+  }
+
+  // TODO: send stdin stuff?
 
   const int kBufferLength = 4096;
   char buffer[kBufferLength];

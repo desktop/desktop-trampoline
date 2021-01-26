@@ -2,12 +2,12 @@ const { stat, access } = require('fs').promises
 const { constants } = require('fs')
 const { execFile } = require('child_process')
 const { promisify } = require('util')
-const { getAskPassTrampolinePath } = require('../index')
+const { getDesktopTrampolinePath } = require('../index')
 
-const trampolinePath = getAskPassTrampolinePath()
+const trampolinePath = getDesktopTrampolinePath()
 const run = promisify(execFile)
 
-describe('ask-pass-trampoline', () => {
+describe('desktop-trampoline', () => {
   it('exists and is a regular file', async () =>
     expect((await stat(trampolinePath)).isFile()).toBe(true))
 
