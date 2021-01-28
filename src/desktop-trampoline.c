@@ -8,14 +8,12 @@
 #include <arpa/inet.h>
 
 int safeSend(int socket, const void *buffer, size_t length, int flags) {
-  int bytesSent = send(socket, buffer, length, flags);
-
-  return (bytesSent < length ? -1 : 0);
+  return (send(socket, buffer, length, flags) < (ssize_t)length ? -1 : 0);
 }
 
 #define SEND_STRING_OR_EXIT(dataName, dataString) \
 if (safeSend(fd, dataString, strlen(dataString) + 1, 0) != 0) { \
-  fprintf(stderr, "ERROR: Couldn't send " dataName " (%d): %s", \
+  fprintf(stderr, "ERROR: Couldn't send " dataName " (%d): %s\n", \
           errno, strerror(errno));\
   return 1;\
 }
@@ -23,10 +21,8 @@ if (safeSend(fd, dataString, strlen(dataString) + 1, 0) != 0) { \
 int main(int argc, char **argv, char **envp)
 {
   char *desktopPortString, *prompt;
-  int err = 0;
 
-  if (argc < 2)
-  {
+  if (argc < 2) {
     fprintf(stderr, "USAGE: desktop-trampoline PROMPT\n");
     return 1;
   }
@@ -34,8 +30,7 @@ int main(int argc, char **argv, char **envp)
   prompt = argv[1];
   desktopPortString = getenv("DESKTOP_PORT");
 
-  if (desktopPortString == NULL)
-  {
+  if (desktopPortString == NULL) {
     fprintf(stderr, "ERROR: Missing DESKTOP_PORT environment variable\n");
     return 1;
   }
@@ -45,7 +40,7 @@ int main(int argc, char **argv, char **envp)
   int fd = socket(AF_INET, SOCK_STREAM, 0);
 
   if (fd == -1) {
-    fprintf(stderr, "ERROR: Couldn't create TCP socket (%d): %s", errno, strerror(errno));
+    fprintf(stderr, "ERROR: Couldn't create TCP socket (%d): %s\n", errno, strerror(errno));
     return 1;
   }
 
@@ -55,7 +50,7 @@ int main(int argc, char **argv, char **envp)
   remote.sin_port = htons(desktopPort);
 
   if (connect(fd, (struct sockaddr *)&remote, sizeof(struct sockaddr_in)) != 0) {
-    fprintf(stderr, "ERROR: Couldn't connect to 127.0.0.1:%d (%d): %s",
+    fprintf(stderr, "ERROR: Couldn't connect to 127.0.0.1:%d (%d): %s\n",
             desktopPort, errno, strerror(errno));
     return 1;
   }
@@ -92,13 +87,13 @@ int main(int argc, char **argv, char **envp)
   const int kBufferLength = 4096;
   char buffer[kBufferLength];
   size_t totalBytesRead = 0;
-  size_t bytesRead = 0;
+  ssize_t bytesRead = 0;
 
   do {
     bytesRead = recv(fd, buffer + totalBytesRead, kBufferLength - totalBytesRead, 0);
 
     if (bytesRead == -1) {
-      fprintf(stderr, "ERROR: Error reading from socket (%d): %s",
+      fprintf(stderr, "ERROR: Error reading from socket (%d): %s\n",
               errno, strerror(errno));
       return 1;
     }
