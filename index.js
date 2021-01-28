@@ -5,12 +5,17 @@ function getDesktopTrampolinePath() {
     __dirname,
     'build',
     'Release',
-    process.platform === 'win32'
+    getDesktopTrampolineFilename()
+  )
+}
+
+function getDesktopTrampolineFilename() {
+  return process.platform === 'win32'
       ? 'desktop-trampoline.exe'
       : 'desktop-trampoline'
-  )
 }
 
 module.exports = {
   getDesktopTrampolinePath,
+  getDesktopTrampolineFilename,
 }

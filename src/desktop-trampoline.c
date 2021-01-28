@@ -7,6 +7,19 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+int safeSend(int socket, const void *buffer, size_t length, int flags) {
+  int bytesSent = send(socket, buffer, length, flags);
+
+  return (bytesSent < length ? -1 : 0);
+}
+
+#define SEND_STRING_OR_EXIT(dataName, dataString) \
+if (safeSend(fd, dataString, strlen(dataString) + 1, 0) != 0) { \
+  fprintf(stderr, "ERROR: Couldn't send " dataName " (%d): %s", \
+          errno, strerror(errno));\
+  return 1;\
+}
+
 int main(int argc, char **argv, char **envp)
 {
   char *desktopPortString, *prompt;
@@ -30,20 +43,31 @@ int main(int argc, char **argv, char **envp)
   unsigned short desktopPort = atoi(desktopPortString);
 
   int fd = socket(AF_INET, SOCK_STREAM, 0);
+
+  if (fd == -1) {
+    fprintf(stderr, "ERROR: Couldn't create TCP socket (%d): %s", errno, strerror(errno));
+    return 1;
+  }
+
   struct sockaddr_in remote = {0};
   remote.sin_addr.s_addr = inet_addr("127.0.0.1");
   remote.sin_family = AF_INET;
   remote.sin_port = htons(desktopPort);
-  connect(fd, (struct sockaddr *)&remote, sizeof(struct sockaddr_in));
+
+  if (connect(fd, (struct sockaddr *)&remote, sizeof(struct sockaddr_in)) != 0) {
+    fprintf(stderr, "ERROR: Couldn't connect to 127.0.0.1:%d (%d): %s",
+            desktopPort, errno, strerror(errno));
+    return 1;
+  }
 
   // Send the number of arguments
   char argcString[33];
   snprintf(argcString, 33, "%d", argc);
-  send(fd, argcString, strlen(argcString) + 1, 0);
+  SEND_STRING_OR_EXIT("number of arguments", argcString);
 
   // Send each argument separated by \0
   for (int idx = 0; idx < argc; idx++) {
-    send(fd, argv[idx], strlen(argv[idx]) + 1, 0);
+    SEND_STRING_OR_EXIT("argument", argv[idx]);
   }
 
   // Get the number of environment variables
@@ -55,12 +79,12 @@ int main(int argc, char **argv, char **envp)
   // Send the number of environment variables
   char envcString[33];
   snprintf(envcString, 33, "%d", envc);
-  send(fd, envcString, strlen(envcString) + 1, 0);
+  SEND_STRING_OR_EXIT("number of environment variables", envcString);
 
   // Send the environment variables
   for (char **env = envp; *env != 0; env++) {
     char *thisEnv = *env;
-    send(fd, thisEnv, strlen(thisEnv) + 1, 0);
+    SEND_STRING_OR_EXIT("environment variable", thisEnv);
   }
 
   // TODO: send stdin stuff?
@@ -70,9 +94,17 @@ int main(int argc, char **argv, char **envp)
   size_t totalBytesRead = 0;
   size_t bytesRead = 0;
 
-  while ((bytesRead = recv(fd, buffer + totalBytesRead, kBufferLength - totalBytesRead, 0))) {
+  do {
+    bytesRead = recv(fd, buffer + totalBytesRead, kBufferLength - totalBytesRead, 0);
+
+    if (bytesRead == -1) {
+      fprintf(stderr, "ERROR: Error reading from socket (%d): %s",
+              errno, strerror(errno));
+      return 1;
+    }
+
     totalBytesRead += bytesRead;
-  }
+  } while (bytesRead > 0);
 
   buffer[totalBytesRead] = '\0';
 

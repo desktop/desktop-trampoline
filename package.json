@@ -1,5 +1,6 @@
 {
   "name": "desktop-trampoline",
+  "version": "0.9.0",
   "main": "index.js",
   "license": "MIT",
   "bin": {
