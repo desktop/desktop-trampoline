@@ -10,7 +10,7 @@
           ['OS=="win"', {
             'defines': [ 'WINDOWS' ],
             'link_settings': {
-              'libraries': [ 'Shlwapi.lib' ]
+              'libraries': [ 'Ws2_32.lib' ]
             }
           }]
         ]

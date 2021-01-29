@@ -34,7 +34,7 @@ describe('desktop-trampoline', () => {
     const startTrampolineServer = async () => {
       return new Promise((resolve, reject) => {
         server.on('error', e => reject(e))
-        server.listen(() => {
+        server.listen(0, '127.0.0.1', () => {
           resolve(server.address().port)
         })
       })
@@ -46,15 +46,16 @@ describe('desktop-trampoline', () => {
       DESKTOP_PORT: port,
     }
     const opts = { env }
+
     await run(trampolinePath, ['baz'], opts)
 
-    expect(output).toStrictEqual([
-      '2', // number of arguments
-      trampolinePath,
-      'baz',
-      '2', // number of environment variables
-      'DESKTOP_SOMETHING=foo bar',
-      `DESKTOP_PORT=${port}`,
-    ])
+    const outputArguments = output.slice(1, 3)
+    expect(outputArguments).toStrictEqual([trampolinePath, 'baz'])
+    // output[3] is the number of env variables
+    const outputEnv = output.slice(4)
+    expect(outputEnv).toContain('DESKTOP_SOMETHING=foo bar')
+    expect(outputEnv).toContain(`DESKTOP_PORT=${port}`)
+
+    server.close()
   })
 })
