@@ -3,6 +3,8 @@ const { constants } = require('fs')
 const { execFile } = require('child_process')
 const { promisify } = require('util')
 const { getDesktopTrampolinePath } = require('../index')
+const split2 = require('split2')
+const { createServer, AddressInfo, Server, Socket } = require('net')
 
 const trampolinePath = getDesktopTrampolinePath()
 const run = promisify(execFile)
@@ -17,35 +19,42 @@ describe('desktop-trampoline', () => {
   it('fails when required environment variables are missing', () =>
     expect(run(trampolinePath, ['Username'])).rejects.toThrow())
 
-  it('forwards arguments correctly', async () => {
-    const echoPath =
-      process.platform === 'win32'
-        ? 'C:\\Program Files\\Git\\usr\\bin\\echo.exe'
-        : '/bin/echo'
+  it('forwards arguments and environment variables correctly', async () => {
+    const output = []
+    const server = createServer(socket => {
+      socket.pipe(split2(/\0/)).on('data', data => {
+        output.push(data.toString('utf8'))
+      })
+    
+      // Don't send anything and just close the socket after the trampoline is
+      // done forwarding data.
+      socket.end()
+    })
+    
+    const startTrampolineServer = async () => {
+      return new Promise((resolve, reject) => {
+        server.on('error', (e) => reject(e))
+        server.listen(() => {
+          resolve(server.address().port)
+        })
+      })
+    }
 
+    const port = await startTrampolineServer()
     const env = {
-      DESKTOP_PATH: echoPath,
-      DESKTOP_ASKPASS_SCRIPT: 'foo bar',
+      DESKTOP_SOMETHING: 'foo bar',
+      DESKTOP_PORT: port,
     }
     const opts = { env }
+    await run(trampolinePath, ['baz'], opts)
 
-    expect(run(trampolinePath, ['baz'], opts)).resolves.toEqual({
-      stdout: 'foo bar baz\n',
-      stderr: '',
-    })
-  })
-
-  it("doesn't invoke Desktop when asked for a username", () => {
-    const env = {
-      DESKTOP_PATH: 'i am not a real path',
-      DESKTOP_ASKPASS_SCRIPT: 'neither am i',
-      DESKTOP_USERNAME: 'supercoolusername',
-    }
-    const opts = { env }
-
-    expect(run(trampolinePath, ['Username'], opts)).resolves.toEqual({
-      stdout: 'supercoolusername',
-      stderr: '',
-    })
+    expect(output).toStrictEqual([
+      '2', // number of arguments
+      trampolinePath,
+      'baz',
+      '2', // number of environment variables
+      'DESKTOP_SOMETHING=foo bar',
+      `DESKTOP_PORT=${port}`
+    ])
   })
 })
