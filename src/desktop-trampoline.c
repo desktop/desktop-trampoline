@@ -3,15 +3,19 @@
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
+
 #ifdef WINDOWS
+
 #include <winsock.h>
 
 #define ssize_t long
 
-#else
+#else 
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #define SOCKET int
 #define INVALID_SOCKET -1
