@@ -62,14 +62,13 @@ if (safeSend(fd, dataString, strlen(dataString) + 1, 0) != 0) { \
 
 int main(int argc, char **argv, char **envp)
 {
-  char *desktopPortString, *prompt;
+  char *desktopPortString;
 
   if (argc < 2) {
-    fprintf(stderr, "USAGE: desktop-trampoline PROMPT\n");
+    fprintf(stderr, "USAGE: desktop-trampoline <arguments>\n");
     return 1;
   }
 
-  prompt = argv[1];
   desktopPortString = getenv("DESKTOP_PORT");
 
   if (desktopPortString == NULL) {
