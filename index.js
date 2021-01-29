@@ -11,8 +11,8 @@ function getDesktopTrampolinePath() {
 
 function getDesktopTrampolineFilename() {
   return process.platform === 'win32'
-      ? 'desktop-trampoline.exe'
-      : 'desktop-trampoline'
+    ? 'desktop-trampoline.exe'
+    : 'desktop-trampoline'
 }
 
 module.exports = {

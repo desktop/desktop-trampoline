@@ -4,7 +4,7 @@ const { execFile } = require('child_process')
 const { promisify } = require('util')
 const { getDesktopTrampolinePath } = require('../index')
 const split2 = require('split2')
-const { createServer, AddressInfo, Server, Socket } = require('net')
+const { createServer } = require('net')
 
 const trampolinePath = getDesktopTrampolinePath()
 const run = promisify(execFile)
@@ -25,15 +25,15 @@ describe('desktop-trampoline', () => {
       socket.pipe(split2(/\0/)).on('data', data => {
         output.push(data.toString('utf8'))
       })
-    
+
       // Don't send anything and just close the socket after the trampoline is
       // done forwarding data.
       socket.end()
     })
-    
+
     const startTrampolineServer = async () => {
       return new Promise((resolve, reject) => {
-        server.on('error', (e) => reject(e))
+        server.on('error', e => reject(e))
         server.listen(() => {
           resolve(server.address().port)
         })
@@ -54,7 +54,7 @@ describe('desktop-trampoline', () => {
       'baz',
       '2', // number of environment variables
       'DESKTOP_SOMETHING=foo bar',
-      `DESKTOP_PORT=${port}`
+      `DESKTOP_PORT=${port}`,
     ])
   })
 })

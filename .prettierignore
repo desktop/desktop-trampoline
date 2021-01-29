@@ -1,0 +1,8 @@
+.vscode
+.prettierrc.yml
+.gitattributes
+.yarnrc
+vendor/
+yarn-error.log
+build
+dist
