@@ -82,7 +82,7 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
   }
 
   // Get the number of environment variables
-  char *validEnvVars[NUMBER_OF_VALID_ENV_VARS] = {};
+  char *validEnvVars[NUMBER_OF_VALID_ENV_VARS];
   int envc = 0;
   for (char **env = envp; *env != 0; env++) {
     if (isValidEnvVar(*env)) {
