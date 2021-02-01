@@ -2,6 +2,8 @@
   "name": "desktop-trampoline",
   "version": "0.9.0",
   "main": "index.js",
+  "keywords": [],
+  "author": "",
   "license": "MIT",
   "bin": {
     "desktop-trampoline": "build/Release/desktop-trampoline"
@@ -19,6 +21,14 @@
     "prebuild-all": "yarn prebuild-node && yarn prebuild-electron && yarn prebuild-electron-arm64",
     "upload": "node ./script/upload.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/desktop/desktop-trampoline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/desktop/desktop-trampoline/issues"
+  },
+  "homepage": "https://github.com/desktop/desktop-trampoline#readme",
   "devDependencies": {
     "jest": "^26.4.2",
     "node-gyp": "^7.1.0",
