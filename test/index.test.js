@@ -19,7 +19,7 @@ describe('desktop-trampoline', () => {
   it('fails when required environment variables are missing', () =>
     expect(run(trampolinePath, ['Username'])).rejects.toThrow())
 
-  it('forwards arguments and environment variables correctly', async () => {
+  it('forwards arguments and valid environment variables correctly', async () => {
     const output = []
     const server = createServer(socket => {
       socket.pipe(split2(/\0/)).on('data', data => {
@@ -42,18 +42,21 @@ describe('desktop-trampoline', () => {
 
     const port = await startTrampolineServer()
     const env = {
-      DESKTOP_SOMETHING: 'foo bar',
+      DESKTOP_PORT_FAKE: 32123,
+      DESKTOP_TRAMPOLINE_IDENTIFIER: '123456',
       DESKTOP_PORT: port,
+      INVALID_VARIABLE: 'foo bar',
     }
     const opts = { env }
 
     await run(trampolinePath, ['baz'], opts)
 
-    const outputArguments = output.slice(1, 3)
-    expect(outputArguments).toStrictEqual([trampolinePath, 'baz'])
-    // output[3] is the number of env variables
-    const outputEnv = output.slice(4)
-    expect(outputEnv).toContain('DESKTOP_SOMETHING=foo bar')
+    const outputArguments = output.slice(1, 2)
+    expect(outputArguments).toStrictEqual(['baz'])
+    // output[2] is the number of env variables
+    const outputEnv = output.slice(3)
+    expect(outputEnv).toHaveLength(2)
+    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=123456')
     expect(outputEnv).toContain(`DESKTOP_PORT=${port}`)
 
     server.close()

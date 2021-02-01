@@ -7,6 +7,7 @@
 #include "socket.h"
 
 #define BUFFER_LENGTH 4096
+#define MAXIMUM_NUMBER_LENGTH 33
 
 #define WRITE_STRING_OR_EXIT(dataName, dataString) \
 if (writeSocket(socket, dataString, strlen(dataString) + 1) != 0) { \
@@ -14,13 +15,38 @@ if (writeSocket(socket, dataString, strlen(dataString) + 1) != 0) { \
   return 1; \
 }
 
+// This is a list of valid environment variables that GitHub Desktop might
+// send or expect to receive.
+#define NUMBER_OF_VALID_ENV_VARS 5
+static const char *sValidEnvVars[NUMBER_OF_VALID_ENV_VARS] = {
+  "DESKTOP_TRAMPOLINE_IDENTIFIER",
+  "DESKTOP_PORT",
+  "DESKTOP_TRAMPOLINE_TOKEN",
+  "DESKTOP_USERNAME",
+  "DESKTOP_ENDPOINT",
+};
+
+/** Returns 1 if a given env variable is valid, 0 otherwise. */
+int isValidEnvVar(char *env) {
+  for (int idx = 0; idx < NUMBER_OF_VALID_ENV_VARS; idx++) {
+    const char *candidate = sValidEnvVars[idx];
+
+    // Make sure that not only the passed env var string starts with the
+    // candidate contesnts, but also that there is a '=' character right after:
+    // Valid: "DESKTOP_PORT=50"
+    // Not valid: "DESKTOP_PORT_SOMETHING=50"
+    if (strncmp(env, candidate, strlen(candidate)) == 0
+        && strlen(env) > strlen(candidate)
+        && env[strlen(candidate)] == '=') {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
   char *desktopPortString;
-
-  if (argc < 2) {
-    fprintf(stderr, "USAGE: desktop-trampoline <arguments>\n");
-    return 1;
-  }
 
   desktopPortString = getenv("DESKTOP_PORT");
 
@@ -45,31 +71,34 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
     return 1;
   }
 
-  // Send the number of arguments
-  char argcString[33];
-  snprintf(argcString, 33, "%d", argc);
+  // Send the number of arguments (except the program name)
+  char argcString[MAXIMUM_NUMBER_LENGTH];
+  snprintf(argcString, MAXIMUM_NUMBER_LENGTH, "%d", argc - 1);
   WRITE_STRING_OR_EXIT("number of arguments", argcString);
 
   // Send each argument separated by \0
-  for (int idx = 0; idx < argc; idx++) {
+  for (int idx = 1; idx < argc; idx++) {
     WRITE_STRING_OR_EXIT("argument", argv[idx]);
   }
 
   // Get the number of environment variables
+  char *validEnvVars[NUMBER_OF_VALID_ENV_VARS] = {};
   int envc = 0;
   for (char **env = envp; *env != 0; env++) {
-    envc++;  
+    if (isValidEnvVar(*env)) {
+      validEnvVars[envc] = *env;
+      envc++;
+    }
   }
 
   // Send the number of environment variables
-  char envcString[33];
-  snprintf(envcString, 33, "%d", envc);
+  char envcString[MAXIMUM_NUMBER_LENGTH];
+  snprintf(envcString, MAXIMUM_NUMBER_LENGTH, "%d", envc);
   WRITE_STRING_OR_EXIT("number of environment variables", envcString);
 
   // Send the environment variables
-  for (char **env = envp; *env != 0; env++) {
-    char *thisEnv = *env;
-    WRITE_STRING_OR_EXIT("environment variable", thisEnv);
+  for (int idx = 0; idx < envc; idx++) {
+    WRITE_STRING_OR_EXIT("environment variable", validEnvVars[idx]);
   }
 
   // TODO: send stdin stuff?
