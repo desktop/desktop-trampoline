@@ -24,14 +24,13 @@
 
 #define BUFFER_LENGTH 4096
 
-int safeSend(int socket, const void *buffer, size_t length, int flags) {
+int safeSend(SOCKET socket, const void *buffer, size_t length, int flags) {
   return (send(socket, buffer, length, flags) < (ssize_t)length ? -1 : 0);
 }
 
 void closeSocket(SOCKET socket) {
 #ifdef WINDOWS
   closesocket(socket);
-  WSACleanup();
 #else
   close(socket);
 #endif
@@ -53,15 +52,13 @@ void printSocketError(char *fmt, ...)
 #endif
 }
 
-#define SEND_STRING_OR_EXIT(dataName, dataString) \
-if (safeSend(fd, dataString, strlen(dataString) + 1, 0) != 0) { \
+#define SEND_STRING_OR_EXIT(socket, dataName, dataString) \
+if (safeSend(socket, dataString, strlen(dataString) + 1, 0) != 0) { \
   printSocketError("ERROR: Couldn't send " dataName); \
-  closeSocket(fd); \
   return 1; \
 }
 
-int main(int argc, char **argv, char **envp)
-{
+int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
   char *desktopPortString;
 
   if (argc < 2) {
@@ -78,45 +75,33 @@ int main(int argc, char **argv, char **envp)
 
   unsigned short desktopPort = atoi(desktopPortString);
 
-#ifdef WINDOWS
-  // Initialize Winsock
-  WSADATA wsaData;
-  int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-  if (iResult != NO_ERROR) {
-    fprintf(stderr, "ERROR: WSAStartup failed: %d\n", iResult);
-    return 1;
-  }
-#endif
-  
-  SOCKET fd = socket(AF_INET, SOCK_STREAM, 0);
+  SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (fd == INVALID_SOCKET) {
+  if (s == INVALID_SOCKET) {
     printSocketError("ERROR: Couldn't create TCP socket");
-#ifdef WINDOWS
-    WSACleanup();
-#endif
     return 1;
   }
+
+  *outSocket = s;
 
   struct sockaddr_in remote = {0};
   remote.sin_addr.s_addr = inet_addr("127.0.0.1");
   remote.sin_family = AF_INET;
   remote.sin_port = htons(desktopPort);
 
-  if (connect(fd, (struct sockaddr *)&remote, sizeof(struct sockaddr_in)) != 0) {
+  if (connect(s, (struct sockaddr *)&remote, sizeof(struct sockaddr_in)) != 0) {
     printSocketError("ERROR: Couldn't connect to 127.0.0.1:%d", desktopPort);
-    closeSocket(fd);
     return 1;
   }
 
   // Send the number of arguments
   char argcString[33];
   snprintf(argcString, 33, "%d", argc);
-  SEND_STRING_OR_EXIT("number of arguments", argcString);
+  SEND_STRING_OR_EXIT(s, "number of arguments", argcString);
 
   // Send each argument separated by \0
   for (int idx = 0; idx < argc; idx++) {
-    SEND_STRING_OR_EXIT("argument", argv[idx]);
+    SEND_STRING_OR_EXIT(s, "argument", argv[idx]);
   }
 
   // Get the number of environment variables
@@ -128,12 +113,12 @@ int main(int argc, char **argv, char **envp)
   // Send the number of environment variables
   char envcString[33];
   snprintf(envcString, 33, "%d", envc);
-  SEND_STRING_OR_EXIT("number of environment variables", envcString);
+  SEND_STRING_OR_EXIT(s, "number of environment variables", envcString);
 
   // Send the environment variables
   for (char **env = envp; *env != 0; env++) {
     char *thisEnv = *env;
-    SEND_STRING_OR_EXIT("environment variable", thisEnv);
+    SEND_STRING_OR_EXIT(s, "environment variable", thisEnv);
   }
 
   // TODO: send stdin stuff?
@@ -144,11 +129,10 @@ int main(int argc, char **argv, char **envp)
 
   // Read output from server
   do {
-    bytesRead = recv(fd, buffer + totalBytesRead, BUFFER_LENGTH - totalBytesRead, 0);
+    bytesRead = recv(s, buffer + totalBytesRead, BUFFER_LENGTH - totalBytesRead, 0);
 
     if (bytesRead == -1) {
       printSocketError("ERROR: Error reading from socket");
-      closeSocket(fd);
       return 1;
     }
 
@@ -160,7 +144,31 @@ int main(int argc, char **argv, char **envp)
   // Write that output to stdout
   fprintf(stdout, "%s", buffer);
 
-  closeSocket(fd);
-
   return 0;
+}
+
+int main(int argc, char **argv, char **envp) {
+#ifdef WINDOWS
+  // Initialize Winsock
+  WSADATA wsaData;
+  int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+  if (iResult != NO_ERROR) {
+    fprintf(stderr, "ERROR: WSAStartup failed: %d\n", iResult);
+    return 1;
+  }
+#endif
+
+  SOCKET socket = INVALID_SOCKET;
+  int result = runTrampolineClient(&socket, argc, argv, envp);  
+
+  if (socket != INVALID_SOCKET)
+  {
+    closeSocket(socket);
+  }
+
+#ifdef WINDOWS
+    WSACleanup();
+#endif
+
+  return result;
 }
