@@ -10,7 +10,7 @@
         'include_dirs': [
           'include'
         ],
-        "xcode_settings": {
+        'xcode_settings': {
           'OTHER_CFLAGS': [
             '-Wall',
             '-Werror'
