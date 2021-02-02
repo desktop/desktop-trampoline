@@ -30,6 +30,7 @@ describe('desktop-trampoline', () => {
       // done forwarding data.
       socket.end()
     })
+    server.unref()
 
     const startTrampolineServer = async () => {
       return new Promise((resolve, reject) => {
@@ -42,9 +43,10 @@ describe('desktop-trampoline', () => {
 
     const port = await startTrampolineServer()
     const env = {
-      DESKTOP_PORT_FAKE: 32123,
       DESKTOP_TRAMPOLINE_IDENTIFIER: '123456',
       DESKTOP_PORT: port,
+      DESKTOP_USERNAME: 'sergiou87',
+      DESKTOP_USERNAME_FAKE: 'fake-user',
       INVALID_VARIABLE: 'foo bar',
     }
     const opts = { env }
@@ -57,7 +59,7 @@ describe('desktop-trampoline', () => {
     const outputEnv = output.slice(3)
     expect(outputEnv).toHaveLength(2)
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=123456')
-    expect(outputEnv).toContain(`DESKTOP_PORT=${port}`)
+    expect(outputEnv).toContain(`DESKTOP_USERNAME=sergiou87`)
 
     server.close()
   })
