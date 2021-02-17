@@ -102,7 +102,7 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
 
   // TODO: send stdin stuff?
 
-  char buffer[BUFFER_LENGTH];
+  char buffer[BUFFER_LENGTH + 1];
   size_t totalBytesRead = 0;
   ssize_t bytesRead = 0;
 
