@@ -22,3 +22,4 @@ repository can create a new release.
 1. Update the changelog to whatever makes sense for this release. It should be
    focused on user-facing changes.
 1. Confirm all assets are uploaded for all the supported platforms.
+1. Merge the Pull Request into `main` and you're done :tada:
