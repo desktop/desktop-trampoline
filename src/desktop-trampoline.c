@@ -134,9 +134,7 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
     totalBytesWritten += bytesToWrite;
   } while (bytesToWrite > 0);
 
-  if (totalBytesWritten > 0) {
-    writeSocket(socket, "\0", 1);
-  }
+  writeSocket(socket, "\0", 1);
 
   size_t totalBytesRead = 0;
   ssize_t bytesRead = 0;

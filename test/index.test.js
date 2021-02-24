@@ -61,13 +61,17 @@ describe('desktop-trampoline', () => {
 
     await run(trampolinePath, ['baz'], opts)
 
+    console.log(output)
+
     const outputArguments = output.slice(1, 2)
     expect(outputArguments).toStrictEqual(['baz'])
     // output[2] is the number of env variables
-    const outputEnv = output.slice(3)
+    const outputEnv = output.slice(3, output.length - 1)
     expect(outputEnv).toHaveLength(2)
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=123456')
     expect(outputEnv).toContain(`DESKTOP_USERNAME=sergiou87`)
+
+    expect(output[output.length - 1]).toStrictEqual('')
 
     server.close()
   })
