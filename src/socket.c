@@ -6,13 +6,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WINDOWS
+#define MAX_WSA_ERROR_DESCRIPTION_LENGTH 4096
+#endif
+
 int initializeNetwork(void) {
 #ifdef WINDOWS
   // Initialize Winsock
   WSADATA wsaData;
   int result = WSAStartup(MAKEWORD(2,2), &wsaData);
   if (result != NO_ERROR) {
-    fprintf(stderr, "ERROR: WSAStartup failed: %d\n", result);
+    wchar_t errorDescription[MAX_WSA_ERROR_DESCRIPTION_LENGTH];
+    getWSALastErrorDescription(errorDescription, MAX_WSA_ERROR_DESCRIPTION_LENGTH);
+
+    fprintf(stderr, "ERROR: WSAStartup failed (%d). Error %ld: %ls\n",
+            result, WSAGetLastError(), errorDescription);
     return 1;
   }
 #endif
@@ -55,8 +63,18 @@ int readSocket(SOCKET socket, void *buffer, size_t length) {
   return recv(socket, buffer, length, 0);
 }
 
-void printSocketError(char *fmt, ...) 
-{    
+#ifdef WINDOWS
+
+void getWSALastErrorDescription(wchar_t *buffer, int maxLength) {
+  FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                 NULL, WSAGetLastError(),
+                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                 (LPWSTR)&buffer, maxLength, NULL);
+}
+
+#endif
+
+void printSocketError(char *fmt, ...) {
   char formatted_string[4096];
 
   va_list argptr;
@@ -65,13 +83,10 @@ void printSocketError(char *fmt, ...)
   va_end(argptr);
 
 #ifdef WINDOWS
-  wchar_t *errorDescription = NULL;
-  FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-                 NULL, WSAGetLastError(),
-                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                 (LPWSTR)&errorDescription, 0, NULL);
+  wchar_t errorDescription[MAX_WSA_ERROR_DESCRIPTION_LENGTH];
+  getWSALastErrorDescription(errorDescription, MAX_WSA_ERROR_DESCRIPTION_LENGTH)
 
-  fprintf(stderr, "%s (%ld): %S\n", formatted_string, WSAGetLastError(), errorDescription);
+  fprintf(stderr, "%s (%ld): %ls\n", formatted_string, WSAGetLastError(), errorDescription);
 #else
   fprintf(stderr, "%s (%d): %s\n", formatted_string, errno, strerror(errno));
 #endif
