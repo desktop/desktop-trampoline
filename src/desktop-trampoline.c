@@ -66,7 +66,9 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
   *outSocket = socket;
 
   if (connectSocket(socket, desktopPort) != 0) {
-    printSocketError("ERROR: Couldn't connect to 127.0.0.1:%d", desktopPort);
+    printSocketError("ERROR: Couldn't connect to 127.0.0.1:%d - Please make "
+                     "sure you don't have an antivirus or firewall blocking "
+                     "this connection.", desktopPort);
     return 1;
   }
 
