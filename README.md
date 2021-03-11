@@ -9,7 +9,7 @@ The intention is to support the same platforms that
 
 ## Building
 
-This project is written as a Node project with the C-portions beign compiled by
+This project is written as a Node project with the C-portions being compiled by
 node-gyp. Installing dependencies and building requires Node.js, and yarn. With
 those prerequisites the initial setup should be as easy as running `yarn` and
 subsequent builds can be done using `yarn build`. There are some tests available
