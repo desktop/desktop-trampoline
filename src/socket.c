@@ -7,7 +7,16 @@
 #include <string.h>
 
 #ifdef WINDOWS
+
 #define MAX_WSA_ERROR_DESCRIPTION_LENGTH 4096
+
+void getWSALastErrorDescription(wchar_t *buffer, int bufferLength) {
+  FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                 NULL, WSAGetLastError(),
+                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                 (LPWSTR)buffer, bufferLength - 1, NULL);
+}
+
 #endif
 
 int initializeNetwork(void) {
@@ -63,17 +72,6 @@ int readSocket(SOCKET socket, void *buffer, size_t length) {
   return recv(socket, buffer, length, 0);
 }
 
-#ifdef WINDOWS
-
-void getWSALastErrorDescription(wchar_t *buffer, int maxLength) {
-  FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-                 NULL, WSAGetLastError(),
-                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                 (LPWSTR)&buffer, maxLength, NULL);
-}
-
-#endif
-
 void printSocketError(char *fmt, ...) {
   char formatted_string[4096];
 
@@ -84,7 +82,7 @@ void printSocketError(char *fmt, ...) {
 
 #ifdef WINDOWS
   wchar_t errorDescription[MAX_WSA_ERROR_DESCRIPTION_LENGTH];
-  getWSALastErrorDescription(errorDescription, MAX_WSA_ERROR_DESCRIPTION_LENGTH)
+  getWSALastErrorDescription(errorDescription, MAX_WSA_ERROR_DESCRIPTION_LENGTH);
 
   fprintf(stderr, "%s (%ld): %ls\n", formatted_string, WSAGetLastError(), errorDescription);
 #else
