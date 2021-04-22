@@ -13,15 +13,19 @@ jobs:
     name: ${{ matrix.friendlyName }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    env:
+      # Needed until macos-11.0 hosted runners are available
+      SDKROOT: '/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk'
+
     strategy:
       fail-fast: false
       matrix:
         node: [12.14.1]
-        os: [macos-10.14, windows-2019, ubuntu-18.04]
+        os: [macos-10.14, windows-latest, ubuntu-18.04]
         include:
           - os: macos-10.14
             friendlyName: macOS
-          - os: windows-2019
+          - os: windows-latest
             friendlyName: Windows
           - os: ubuntu-18.04
             friendlyName: Linux
@@ -33,6 +37,16 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
+
+      # This step can be removed as soon as official Windows arm64 builds are published:
+      # https://github.com/nodejs/build/issues/2450#issuecomment-705853342
+      - run: |
+          $NodeVersion = (node --version) -replace '^.'
+          $NodeFallbackVersion = "15.8.0"
+          & .\script\download-node-lib-win-arm64.ps1 $NodeVersion $NodeFallbackVersion
+        if: ${{ matrix.os == 'windows-latest' }}
+        name: Install Windows arm64 node.lib
+
       - name: Install and build
         run: yarn
       - name: Lint
@@ -40,12 +54,14 @@ jobs:
       - name: Test
         run: yarn test
         shell: bash
-      - name: Prebuild Node x64
-        run: yarn prebuild-node
-      - name: Prebuild Electron x64
-        run: yarn prebuild-electron
-      - name: Prebuild Electron arm64
-        run: yarn prebuild-electron-arm64
+      - name: Prebuild (x64)
+        run: npm run prebuild-napi-x64
+      - name: Prebuild (arm64)
+        run: npm run prebuild-napi-arm64
+        if: ${{ matrix.os != 'ubuntu-18.04' }}
+      - name: Prebuild (Windows x86)
+        run: npm run prebuild-napi-ia32
+        if: ${{ matrix.os == 'windows-latest' }}
       - name: Publish
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: yarn upload

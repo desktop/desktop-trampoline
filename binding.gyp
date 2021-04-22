@@ -2,12 +2,16 @@
     'targets': [
       {
         'target_name': 'desktop-trampoline',
+        'defines': [
+          "NAPI_VERSION=<(napi_build_version)",
+        ],
         'type': 'executable',
         'sources': [
           'src/desktop-trampoline.c',
           'src/socket.c'
         ],
         'include_dirs': [
+          '<!(node -p "require(\'node-addon-api\').include_dir")',
           'include'
         ],
         'xcode_settings': {
@@ -27,12 +31,17 @@
           '-pie',
           '-D_FORTIFY_SOURCE=1',
           '-fstack-protector-strong',
-          '-Werror=format-security'
+          '-Werror=format-security',
+          '-fno-exceptions'
         ],
+        'cflags_cc!': [ '-fno-exceptions' ],
         'ldflags!': [
           '-z relro',
           '-z now'
         ],
+        'msvs_settings': {
+          'VCCLCompilerTool': { 'ExceptionHandling': 1 },
+        },
         'conditions': [
           ['OS=="win"', {
             'defines': [ 'WINDOWS' ],
