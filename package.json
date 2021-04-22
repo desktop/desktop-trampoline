@@ -15,10 +15,10 @@
     "test": "jest",
     "lint": "prettier -c **/*.js **/*.md",
     "lint:fix": "prettier --write **/*.js **/*.md",
-    "prebuild-node": "prebuild -t 10.11.0 -t 11.9.0 -t 12.0.0 -t 14.8.0 --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
-    "prebuild-electron": "prebuild -t 7.0.0 -t 8.0.0 -t 9.0.0 -t 10.0.0 -t 11.0.0 -r electron --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
-    "prebuild-electron-arm64": "prebuild -t 7.0.0 -t 8.0.0 -t 9.0.0 -t 10.0.0 -t 11.0.0 -r electron -a arm64 --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
-    "prebuild-all": "yarn prebuild-node && yarn prebuild-electron && yarn prebuild-electron-arm64",
+    "prebuild-napi-x64": "prebuild -t 3 -r napi -a x64 --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
+    "prebuild-napi-ia32": "prebuild -t 3 -r napi -a ia32 --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
+    "prebuild-napi-arm64": "prebuild -t 3 -r napi -a arm64 --strip --include-regex \"desktop-trampoline(\\.exe)?$\"",
+    "prebuild-all": "yarn prebuild-napi-x64 && yarn prebuild-napi-ia32 && yarn prebuild-napi-arm64",
     "upload": "node ./script/upload.js"
   },
   "repository": {
@@ -29,11 +29,23 @@
     "url": "https://github.com/desktop/desktop-trampoline/issues"
   },
   "homepage": "https://github.com/desktop/desktop-trampoline#readme",
+  "dependencies": {
+    "node-addon-api": "^3.1.0"
+  },
   "devDependencies": {
     "jest": "^26.4.2",
     "node-gyp": "^7.1.0",
     "prebuild": "^10.0.1",
     "prettier": "^2.1.2",
     "split2": "^3.2.2"
+  },
+  "binary": {
+    "napi_versions": [
+      3
+    ]
+  },
+  "config": {
+    "runtime": "napi",
+    "target": 3
   }
 }
