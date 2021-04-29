@@ -1,5 +1,7 @@
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +44,42 @@ int isValidEnvVar(char *env) {
   }
 
   return 0;
+}
+
+/**
+ * Reads a string from the socket, reading first 2 bytes to get its length and
+ * then the string itself.
+ */
+ssize_t readDelimitedString(SOCKET socket, char *buffer, size_t bufferSize) {
+  uint16_t outputLength = 0;
+  if (readSocket(socket, &outputLength, sizeof(uint16_t)) < (int)sizeof(uint16_t)) {
+      printSocketError("ERROR: Error reading from socket");
+      return -1;
+  }
+
+  if (outputLength > bufferSize) {
+    fprintf(stderr, "ERROR: received string is bigger than buffer (%d > %zu)", outputLength, bufferSize);
+    return -1;
+  }
+
+  size_t totalBytesRead = 0;
+  ssize_t bytesRead = 0;
+
+  // Read output from server
+  do {
+    bytesRead = readSocket(socket, buffer + totalBytesRead, outputLength - totalBytesRead);
+
+    if (bytesRead == -1) {
+      printSocketError("ERROR: Error reading from socket");
+      return -1;
+    }
+
+    totalBytesRead += bytesRead;
+  } while (bytesRead > 0);
+
+  buffer[totalBytesRead] = '\0';
+
+  return totalBytesRead;
 }
 
 int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
@@ -102,28 +140,56 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
     WRITE_STRING_OR_EXIT("environment variable", validEnvVars[idx]);
   }
 
-  // TODO: send stdin stuff?
-
   char buffer[BUFFER_LENGTH + 1];
-  size_t totalBytesRead = 0;
-  ssize_t bytesRead = 0;
+  size_t totalBytesWritten = 0;
+  ssize_t bytesToWrite = 0;
 
-  // Read output from server
+  // Make stdin reading non-blocking, to prevent getting stuck when no data is
+  // provided via stdin.
+  int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
+  // Send stdin data
   do {
-    bytesRead = readSocket(socket, buffer + totalBytesRead, BUFFER_LENGTH - totalBytesRead);
+    bytesToWrite = read(0, buffer, BUFFER_LENGTH);
 
-    if (bytesRead == -1) {
-      printSocketError("ERROR: Error reading from socket");
+    if (bytesToWrite == -1) {
+      if (totalBytesWritten == 0) {
+        // No stdin content found, continuing...
+        break;
+      } else {
+        fprintf(stderr, "ERROR: Error reading stdin data");
+        return 1;
+      }
+    }
+
+    if (writeSocket(socket, buffer, bytesToWrite) != 0) {
+      printSocketError("ERROR: Couldn't send stdin data");
       return 1;
     }
 
-    totalBytesRead += bytesRead;
-  } while (bytesRead > 0);
+    totalBytesWritten += bytesToWrite;
+  } while (bytesToWrite > 0);
 
-  buffer[totalBytesRead] = '\0';
+  writeSocket(socket, "\0", 1);
+
+  // Read stdout from the server
+  if (readDelimitedString(socket, buffer, BUFFER_LENGTH) == -1) {
+    fprintf(stderr, "ERROR: Couldn't read stdout from socket");
+    return 1;
+  }
 
   // Write that output to stdout
   fprintf(stdout, "%s", buffer);
+
+  // Read stderr from the server
+  if (readDelimitedString(socket, buffer, BUFFER_LENGTH) == -1) {
+    fprintf(stderr, "ERROR: Couldn't read stdout from socket");
+    return 1;
+  }
+
+  // Write that output to stderr
+  fprintf(stderr, "%s", buffer);
 
   return 0;
 }
