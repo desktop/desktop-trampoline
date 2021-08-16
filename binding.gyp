@@ -57,6 +57,9 @@
           "NAPI_VERSION=<(napi_build_version)",
         ],
         'type': 'executable',
+        'sources': [
+          'src/ssh-wrapper.c'
+        ],
         'include_dirs': [
           '<!(node -p "require(\'node-addon-api\').include_dir")',
           'include'
@@ -91,10 +94,8 @@
         },
         'conditions': [
           # For now only build it for macOS, since it's not needed on Windows
-          ['OS=="mac"', {
-            'sources': [
-              'src/ssh-wrapper.c'
-            ],
+          ['OS=="win"', {
+            'defines': [ 'WINDOWS' ],
           }]
         ]
       },

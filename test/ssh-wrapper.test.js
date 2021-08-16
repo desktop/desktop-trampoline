@@ -11,6 +11,11 @@ describe('ssh-wrapper', () => {
   it('exists and is a regular file', async () =>
     expect((await stat(sshWrapperPath)).isFile()).toBe(true))
 
+  // On Windows, the binary generated is just useless, so no point to test it
+  if (process.platform === 'win32') {
+    return
+  }
+
   it('can be executed by current process', () =>
     access(sshWrapperPath, constants.X_OK))
 

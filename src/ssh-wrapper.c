@@ -1,3 +1,12 @@
+#ifdef WINDOWS
+
+int main(int argc, char **argv) {
+  // Not needed on Windows, this will just create a dummy executable
+  return -1;
+}
+
+#else
+
 #include <unistd.h>
 #include <stdio.h>
 
@@ -24,3 +33,5 @@ int main(int argc, char **argv) {
   setsid();
   return execvp("ssh", argv);
 }
+
+#endif
