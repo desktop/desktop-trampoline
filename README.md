@@ -2,7 +2,7 @@
 
 A cross-platform no-dependency C executable trampoline which lets GitHub Desktop
 intercede in order to provide Git with any additional info it needs (like
-credentials through `GIT_ASKPASS`).
+credentials through `GIT_ASKPASS` or `SSH_ASKPASS`).
 
 The intention is to support the same platforms that
 [Electron supports](https://www.electronjs.org/docs/tutorial/support#supported-platforms).
@@ -125,3 +125,15 @@ Thanks to this, with only one generic trampoline that forwards everything via
 that TCP socket, the implementation for every possible protocol like
 `GIT_ASKPASS` can live within the GitHub Desktop codebase instead of having
 multiple trampoline executables.
+
+## SSH Wrapper
+
+Along with the trampoline, an SSH wrapper is provided for macOS. The reason for
+this is macOS before Monterey include an "old" version of OpenSSH that will
+ignore the `SSH_ASKPASS` variable unless it's unable to write to a tty.
+
+This SSH wrapper achieves exactly that: just runs whatever `ssh` exists in the
+path in a way that will use `SSH_ASKPASS` when necessary.
+
+More recent versions of OpenSSH (starting with 8.3) don't require this wrapper,
+since they added support for a new `SSH_ASKPASS_REQUIRE` environment variable.
