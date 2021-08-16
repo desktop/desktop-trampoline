@@ -48,7 +48,9 @@ jobs:
         name: Install Windows arm64 node.lib
 
       - name: Install and build
-        run: yarn
+        run: |
+          yarn install
+          yarn build
       - name: Lint
         run: yarn lint
       - name: Test
