@@ -3452,10 +3452,9 @@ prebuild-install@^6.0.0:
     tar-fs "^2.0.0"
     tunnel-agent "^0.6.0"
 
-prebuild@^10.0.1:
+"prebuild@https://github.com/sergiou87/prebuild#strip-multiple-files":
   version "10.0.1"
-  resolved "https://registry.yarnpkg.com/prebuild/-/prebuild-10.0.1.tgz#9d46a00f42b60ad1718479cc5e3d1ef4882b7f33"
-  integrity sha512-x0CkKDmHFwX49rTGEYJwB9jBQwJWxRzwUtP5PA9dP8khFGMm3oSFgYortxdlp0PkxB29EhWGp/KQE5g+adehYg==
+  resolved "https://github.com/sergiou87/prebuild#d3761817d9a0db1ecf4dfbf12d02b36b0a03cadc"
   dependencies:
     cmake-js "~5.2.0"
     detect-libc "^1.0.3"
