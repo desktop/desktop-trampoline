@@ -13,17 +13,14 @@ jobs:
     name: ${{ matrix.friendlyName }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
-    env:
-      # Needed until macos-11.0 hosted runners are available
-      SDKROOT: '/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk'
 
     strategy:
       fail-fast: false
       matrix:
         node: [14.15.4]
-        os: [macos-10.14, windows-latest, ubuntu-18.04]
+        os: [macos-latest, windows-latest, ubuntu-18.04]
         include:
-          - os: macos-10.14
+          - os: macos-latest
             friendlyName: macOS
           - os: windows-latest
             friendlyName: Windows
