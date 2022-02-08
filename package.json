@@ -30,15 +30,15 @@
   },
   "homepage": "https://github.com/desktop/desktop-trampoline#readme",
   "dependencies": {
-    "node-addon-api": "^3.1.0",
-    "prebuild-install": "^6.0.0"
+    "node-addon-api": "^4.3.0",
+    "prebuild-install": "^7.0.1"
   },
   "devDependencies": {
-    "jest": "^26.4.2",
-    "node-gyp": "^7.1.0",
-    "prebuild": "https://github.com/sergiou87/prebuild#strip-multiple-files",
-    "prettier": "^2.1.2",
-    "split2": "^3.2.2"
+    "jest": "^27.5.0",
+    "node-gyp": "^8.4.1",
+    "prebuild": "^11.0.3",
+    "prettier": "^2.5.1",
+    "split2": "^4.1.0"
   },
   "binary": {
     "napi_versions": [
