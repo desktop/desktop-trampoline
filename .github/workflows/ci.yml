@@ -8,30 +8,58 @@ on:
       - v*
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: ${{ matrix.friendlyName }}
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.image }}
     timeout-minutes: 10
 
     strategy:
       fail-fast: false
       matrix:
-        node: [14.15.4]
-        os: [macos-latest, windows-latest, ubuntu-18.04]
+        node: [16.20.1]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         include:
           - os: macos-latest
             friendlyName: macOS
           - os: windows-latest
             friendlyName: Windows
-          - os: ubuntu-18.04
-            friendlyName: Linux
+          - os: ubuntu-latest
+            friendlyName: Ubuntu
+            image: ubuntu:18.04
     steps:
+      - name: Install dependencies into dockerfile on Ubuntu
+        if: matrix.friendlyName == 'Ubuntu'
+        run: |
+          # ubuntu dockerfile is very minimal (only 122 packages are installed)
+          # add dependencies expected by scripts
+          apt update
+          apt install -y software-properties-common lsb-release \
+          sudo wget curl build-essential jq autoconf automake \
+          pkg-config ca-certificates rpm \
+          # install new enough git to run actions/checkout
+          sudo add-apt-repository ppa:git-core/ppa -y
+          sudo apt update
+          sudo apt install -y git
+          # avoid "fatal: detected dubious ownership in repository" error
+          git config --global --add safe.directory '*'
+          # install new enough npm/nodejs/yarn to build
+          curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/yarnkey.gpg >/dev/null
+          echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs yarn
+          # install arm cross compilers
+          sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v1
+        if: matrix.friendlyName != 'Ubuntu'
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -39,9 +67,9 @@ jobs:
       # https://github.com/nodejs/build/issues/2450#issuecomment-705853342
       - run: |
           $NodeVersion = (node --version) -replace '^.'
-          $NodeFallbackVersion = "15.8.0"
+          $NodeFallbackVersion = "16.20.0"
           & .\script\download-node-lib-win-arm64.ps1 $NodeVersion $NodeFallbackVersion
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: matrix.friendlyName == 'Windows'
         name: Install Windows arm64 node.lib
 
       - name: Install and build
@@ -54,13 +82,19 @@ jobs:
         run: yarn test
         shell: bash
       - name: Prebuild (x64)
-        run: npm run prebuild-napi-x64
-      - name: Prebuild (arm64)
-        run: npm run prebuild-napi-arm64
-        if: ${{ matrix.os != 'ubuntu-18.04' }}
+        run: yarn prebuild-napi-x64
+      - name: Prebuild (arm64) on not Ubuntu
+        if: matrix.friendlyName != 'Ubuntu'
+        run: yarn prebuild-napi-arm64
+      - name: Prebuild (arm64) on Ubuntu
+        if: matrix.friendlyName == 'Ubuntu'
+        run: CC=aarch64-linux-gnu-gcc LINK=aarch64-linux-gnu-gcc STRIP=aarch64-linux-gnu-strip yarn prebuild-napi-arm64
+      - name: Prebuild (arm) on Ubuntu
+        if: matrix.friendlyName == 'Ubuntu'
+        run: CC=arm-linux-gnueabihf-gcc LINK=arm-linux-gnueabihf-gcc STRIP=arm-linux-gnueabihf-strip yarn prebuild-napi-arm
       - name: Prebuild (Windows x86)
-        run: npm run prebuild-napi-ia32
-        if: ${{ matrix.os == 'windows-latest' }}
+        run: yarn prebuild-napi-ia32
+        if: matrix.friendlyName == 'Windows'
       - name: Publish
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: yarn upload
