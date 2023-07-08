@@ -1,6 +1,6 @@
 {
   "name": "desktop-trampoline",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "main": "index.js",
   "keywords": [],
   "author": "",
@@ -18,6 +18,7 @@
     "prebuild-napi-x64": "prebuild -t 3 -r napi -a x64 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
     "prebuild-napi-ia32": "prebuild -t 3 -r napi -a ia32 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
     "prebuild-napi-arm64": "prebuild -t 3 -r napi -a arm64 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
+    "prebuild-napi-arm": "prebuild -t 3 -r napi -a arm --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
     "prebuild-all": "yarn prebuild-napi-x64 && yarn prebuild-napi-ia32 && yarn prebuild-napi-arm64",
     "upload": "node ./script/upload.js"
   },
@@ -35,10 +36,13 @@
   },
   "devDependencies": {
     "jest": "^27.5.0",
-    "node-gyp": "^8.4.1",
-    "prebuild": "^11.0.3",
+    "node-gyp": "^9.4.0",
+    "prebuild": "^11.0.4",
     "prettier": "^2.5.1",
     "split2": "^4.1.0"
+  },
+  "resolutions": {
+    "node-gyp": "^9.4.0"
   },
   "binary": {
     "napi_versions": [
