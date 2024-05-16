@@ -36,7 +36,7 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install Python setup tools
         run: |
-          python -m pip install --upgrade pip setuptools
+          python -m pip install --upgrade distutils
       - name: Install and build
         run: |
           yarn install
