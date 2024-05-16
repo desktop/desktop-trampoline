@@ -34,16 +34,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-
-      # This step can be removed as soon as official Windows arm64 builds are published:
-      # https://github.com/nodejs/build/issues/2450#issuecomment-705853342
-      - run: |
-          $NodeVersion = (node --version) -replace '^.'
-          $NodeFallbackVersion = "15.8.0"
-          & .\script\download-node-lib-win-arm64.ps1 $NodeVersion $NodeFallbackVersion
-        if: ${{ matrix.os == 'windows-latest' }}
-        name: Install Windows arm64 node.lib
-
       - name: Install and build
         run: |
           yarn install
