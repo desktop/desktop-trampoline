@@ -24,7 +24,7 @@ jobs:
             friendlyName: macOS
           - os: windows-latest
             friendlyName: Windows
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             friendlyName: Linux
     steps:
       - uses: actions/checkout@v2
