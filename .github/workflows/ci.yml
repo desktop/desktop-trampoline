@@ -47,7 +47,7 @@ jobs:
         run: npm run prebuild-napi-x64
       - name: Prebuild (arm64)
         run: npm run prebuild-napi-arm64
-        if: ${{ matrix.os != 'ubuntu-18.04' }}
+        if: ${{ matrix.os != 'ubuntu-latest' }}
       - name: Prebuild (Windows x86)
         run: npm run prebuild-napi-ia32
         if: ${{ matrix.os == 'windows-latest' }}
