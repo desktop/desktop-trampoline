@@ -34,13 +34,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.12.3
-          cache: 'pip'
       - name: Install Python setup tools
         run: |
-            pip install setuptools
+          python -m pip install --upgrade pip setuptools
       - name: Install and build
         run: |
           yarn install
