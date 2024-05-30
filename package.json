@@ -31,12 +31,12 @@
   "homepage": "https://github.com/desktop/desktop-trampoline#readme",
   "dependencies": {
     "node-addon-api": "^4.3.0",
-    "prebuild-install": "^7.0.1"
+    "prebuild-install": "^7.1.2"
   },
   "devDependencies": {
     "jest": "^27.5.0",
     "node-gyp": "^10.1.0",
-    "prebuild": "^11.0.3",
+    "prebuild": "^13.0.1",
     "prettier": "^2.5.1",
     "split2": "^4.1.0"
   },
