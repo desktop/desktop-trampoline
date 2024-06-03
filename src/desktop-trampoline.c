@@ -102,7 +102,15 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
     WRITE_STRING_OR_EXIT("environment variable", validEnvVars[idx]);
   }
 
-  // TODO: send stdin stuff?
+  char stdinBuffer[BUFFER_LENGTH + 1];
+  int stdinBytes = 0;
+
+  #ifdef CREDENTIAL_HELPER
+    stdinBytes = fread(stdinBuffer, sizeof(char), BUFFER_LENGTH, stdin);
+  #endif
+
+  stdinBuffer[stdinBytes] = '\0';
+  WRITE_STRING_OR_EXIT("stdin", stdinBuffer);
 
   char buffer[BUFFER_LENGTH + 1];
   size_t totalBytesRead = 0;
@@ -129,6 +137,13 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
 }
 
 int main(int argc, char **argv, char **envp) {
+
+  #ifdef CREDENTIAL_HELPER
+    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "CREDENTIALHELPER");
+  #elif
+    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "ASKPASS");
+  #endif
+
   if (initializeNetwork() != 0) {
     return 1;
   }

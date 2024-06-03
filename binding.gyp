@@ -56,6 +56,24 @@
         ]
       },
       {
+        'target_name': 'desktop-credential-helper-trampoline',
+        'type': 'executable',
+        'defines': [
+          'CREDENTIAL_HELPER'
+        ],
+        'sources': [
+          'src/desktop-trampoline.c',
+          'src/socket.c'
+        ],
+        'conditions': [
+          ['OS=="win"', {
+            'link_settings': {
+              'libraries': [ 'Ws2_32.lib' ]
+            }
+          }]
+        ]
+      },
+      {
         'target_name': 'ssh-wrapper',
         'type': 'executable',
         'sources': [
