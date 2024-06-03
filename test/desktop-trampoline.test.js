@@ -2,11 +2,11 @@ const { stat, access } = require('fs').promises
 const { constants } = require('fs')
 const { execFile } = require('child_process')
 const { promisify } = require('util')
-const { getDesktopTrampolinePath } = require('../index')
+const { getDesktopAskpassTrampolinePath } = require('../index')
 const split2 = require('split2')
 const { createServer } = require('net')
 
-const trampolinePath = getDesktopTrampolinePath()
+const trampolinePath = getDesktopAskpassTrampolinePath()
 const run = promisify(execFile)
 
 describe('desktop-trampoline', () => {
