@@ -17,14 +17,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14.15.4]
-        os: [macos-latest, windows-latest, ubuntu-18.04]
+        node: [20.12.2]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         include:
           - os: macos-latest
             friendlyName: macOS
           - os: windows-latest
             friendlyName: Windows
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             friendlyName: Linux
     steps:
       - uses: actions/checkout@v2
@@ -34,16 +34,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node }}
-
-      # This step can be removed as soon as official Windows arm64 builds are published:
-      # https://github.com/nodejs/build/issues/2450#issuecomment-705853342
-      - run: |
-          $NodeVersion = (node --version) -replace '^.'
-          $NodeFallbackVersion = "15.8.0"
-          & .\script\download-node-lib-win-arm64.ps1 $NodeVersion $NodeFallbackVersion
-        if: ${{ matrix.os == 'windows-latest' }}
-        name: Install Windows arm64 node.lib
-
+      - name: Install Python setup tools
+        run: |
+          python -m pip install --upgrade setuptools packaging
       - name: Install and build
         run: |
           yarn install
@@ -57,7 +50,7 @@ jobs:
         run: npm run prebuild-napi-x64
       - name: Prebuild (arm64)
         run: npm run prebuild-napi-arm64
-        if: ${{ matrix.os != 'ubuntu-18.04' }}
+        if: ${{ matrix.os != 'ubuntu-latest' }}
       - name: Prebuild (Windows x86)
         run: npm run prebuild-napi-ia32
         if: ${{ matrix.os == 'windows-latest' }}
