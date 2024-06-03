@@ -3,7 +3,6 @@
         'defines': [
           "NAPI_VERSION=<(napi_build_version)",
         ],
-        'type': 'executable',
         'include_dirs': [
           '<!(node -p "require(\'node-addon-api\').include_dir")',
           'include'
@@ -43,6 +42,7 @@
     'targets': [
       {
         'target_name': 'desktop-trampoline',
+        'type': 'executable',
         'sources': [
           'src/desktop-trampoline.c',
           'src/socket.c'
@@ -57,6 +57,7 @@
       },
       {
         'target_name': 'ssh-wrapper',
+        'type': 'executable',
         'sources': [
           'src/ssh-wrapper.c'
         ],
