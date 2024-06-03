@@ -80,8 +80,9 @@ describe('desktop-trampoline', () => {
     // output[2] is the number of env variables
     const envc = parseInt(output[2])
     const outputEnv = output.slice(3, 3 + envc)
-    expect(outputEnv).toHaveLength(1)
+    expect(outputEnv).toHaveLength(2)
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_TOKEN=123456')
+    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=ASKPASS')
   })
 
   it('forwards stdin when running in credential-helper mode', async () => {
@@ -112,5 +113,39 @@ describe('desktop-trampoline', () => {
 
     const output = await outputPromise
     expect(output.at(-1)).toBe('')
+  })
+
+  it("askpass handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var", async () => {
+    const [portPromise, outputPromise] = captureSession()
+    const port = await portPromise
+
+    const cp = run(askPassTrampolinePath, ['get'], {
+      env: { DESKTOP_PORT: port, DESKTOP_TRAMPOLINE_IDENTIFIER: 'foo' },
+    })
+    cp.child.stdin.end('oh hai\n')
+
+    await cp
+
+    const output = await outputPromise
+    const envc = parseInt(output[2])
+    const outputEnv = output.slice(3, 3 + envc)
+    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=ASKPASS')
+  })
+
+  it("credential handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var", async () => {
+    const [portPromise, outputPromise] = captureSession()
+    const port = await portPromise
+
+    const cp = run(helperTrampolinePath, ['get'], {
+      env: { DESKTOP_PORT: port, DESKTOP_TRAMPOLINE_IDENTIFIER: 'foo' },
+    })
+    cp.child.stdin.end('oh hai\n')
+
+    await cp
+
+    const output = await outputPromise
+    const envc = parseInt(output[2])
+    const outputEnv = output.slice(3, 3 + envc)
+    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=CREDENTIALHELPER')
   })
 })

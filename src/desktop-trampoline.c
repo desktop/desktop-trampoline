@@ -6,10 +6,6 @@
 
 #include "socket.h"
 
-#ifdef WINDOWS
-#include <windows.h>
-#endif
-
 #define BUFFER_LENGTH 4096
 #define MAXIMUM_NUMBER_LENGTH 33
 
@@ -28,9 +24,8 @@ if (writeSocket(socket, dataString, strlen(dataString) + 1) != 0) { \
 
 // This is a list of valid environment variables that GitHub Desktop might
 // send or expect to receive.
-#define NUMBER_OF_VALID_ENV_VARS 2
+#define NUMBER_OF_VALID_ENV_VARS 1
 static const char *sValidEnvVars[NUMBER_OF_VALID_ENV_VARS] = {
-  "DESKTOP_TRAMPOLINE_IDENTIFIER",
   "DESKTOP_TRAMPOLINE_TOKEN",
 };
 
@@ -92,8 +87,9 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
   }
 
   // Get the number of environment variables
-  char *validEnvVars[NUMBER_OF_VALID_ENV_VARS];
-  int envc = 0;
+  char *validEnvVars[NUMBER_OF_VALID_ENV_VARS + 1];
+  validEnvVars[0] = "DESKTOP_TRAMPOLINE_IDENTIFIER=" DESKTOP_TRAMPOLINE_IDENTIFIER;
+  int envc = 1;
   for (char **env = envp; *env != 0; env++) {
     if (isValidEnvVar(*env)) {
       validEnvVars[envc] = *env;
@@ -146,13 +142,6 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
 }
 
 int main(int argc, char **argv, char **envp) {
-
-  #ifdef WINDOWS
-    SetEnvironmentVariable("DESKTOP_TRAMPOLINE_IDENTIFIER", DESKTOP_TRAMPOLINE_IDENTIFIER);
-  #else
-    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", DESKTOP_TRAMPOLINE_IDENTIFIER, 1);
-  #endif
-
   if (initializeNetwork() != 0) {
     return 1;
   }
