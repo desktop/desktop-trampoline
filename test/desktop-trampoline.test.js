@@ -54,7 +54,8 @@ describe('desktop-trampoline', () => {
     const outputArguments = output.slice(1, 2)
     expect(outputArguments).toStrictEqual(['baz'])
     // output[2] is the number of env variables
-    const outputEnv = output.slice(3)
+    const envc = parseInt(output[2])
+    const outputEnv = output.slice(3, 3 + envc)
     expect(outputEnv).toHaveLength(1)
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_TOKEN=123456')
 
