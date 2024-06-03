@@ -2,7 +2,10 @@ const { stat, access } = require('fs').promises
 const { constants } = require('fs')
 const { execFile } = require('child_process')
 const { promisify } = require('util')
-const { getDesktopAskpassTrampolinePath, getDesktopCredentialHelperTrampolinePath } = require('../index')
+const {
+  getDesktopAskpassTrampolinePath,
+  getDesktopCredentialHelperTrampolinePath,
+} = require('../index')
 const split2 = require('split2')
 const { createServer } = require('net')
 
@@ -59,7 +62,6 @@ describe('desktop-trampoline', () => {
   }
 
   it('forwards arguments and valid environment variables correctly', async () => {
-
     const [portPromise, outputPromise] = captureSession()
     const port = await portPromise
 
@@ -83,11 +85,12 @@ describe('desktop-trampoline', () => {
   })
 
   it('forwards stdin when running in credential-helper mode', async () => {
-
     const [portPromise, outputPromise] = captureSession()
     const port = await portPromise
 
-    const cp = run(helperTrampolinePath, ['get'], { env: { DESKTOP_PORT: port } })
+    const cp = run(helperTrampolinePath, ['get'], {
+      env: { DESKTOP_PORT: port },
+    })
     cp.child.stdin.end('oh hai\n')
 
     await cp
@@ -96,12 +99,13 @@ describe('desktop-trampoline', () => {
     expect(output.at(-1)).toBe('oh hai\n')
   })
 
-  it('doesn\'t forward stdin when running in askpass mode', async () => {
-
+  it("doesn't forward stdin when running in askpass mode", async () => {
     const [portPromise, outputPromise] = captureSession()
     const port = await portPromise
 
-    const cp = run(askPassTrampolinePath, ['get'], { env: { DESKTOP_PORT: port } })
+    const cp = run(askPassTrampolinePath, ['get'], {
+      env: { DESKTOP_PORT: port },
+    })
     cp.child.stdin.end('oh hai\n')
 
     await cp
