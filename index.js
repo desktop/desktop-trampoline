@@ -1,18 +1,33 @@
 const Path = require('path')
 
-function getDesktopTrampolinePath() {
+function getDesktopAskpassTrampolinePath() {
   return Path.join(
     __dirname,
     'build',
     'Release',
-    getDesktopTrampolineFilename()
+    getDesktopAskpassTrampolineFilename()
   )
 }
 
-function getDesktopTrampolineFilename() {
+function getDesktopAskpassTrampolineFilename() {
   return process.platform === 'win32'
-    ? 'desktop-trampoline.exe'
-    : 'desktop-trampoline'
+    ? 'desktop-askpass-trampoline.exe'
+    : 'desktop-askpass-trampoline'
+}
+
+function getDesktopCredentialHelperTrampolinePath() {
+  return Path.join(
+    __dirname,
+    'build',
+    'Release',
+    getDesktopCredentialHelperTrampolineFilename()
+  )
+}
+
+function getDesktopCredentialHelperTrampolineFilename() {
+  return process.platform === 'win32'
+    ? 'desktop-credential-helper-trampoline.exe'
+    : 'desktop-credential-helper-trampoline'
 }
 
 function getSSHWrapperPath() {
@@ -24,8 +39,10 @@ function getSSHWrapperFilename() {
 }
 
 module.exports = {
-  getDesktopTrampolinePath,
-  getDesktopTrampolineFilename,
+  getDesktopAskpassTrampolinePath,
+  getDesktopAskpassTrampolineFilename,
+  getDesktopCredentialHelperTrampolinePath,
+  getDesktopCredentialHelperTrampolineFilename,
   getSSHWrapperPath,
   getSSHWrapperFilename,
 }
