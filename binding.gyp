@@ -41,7 +41,7 @@
     },
     'targets': [
       {
-        'target_name': 'desktop-trampoline',
+        'target_name': 'desktop-askpass-trampoline',
         'type': 'executable',
         'sources': [
           'src/desktop-trampoline.c',
