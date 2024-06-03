@@ -15,6 +15,21 @@ function getDesktopAskpassTrampolineFilename() {
     : 'desktop-askpass-trampoline'
 }
 
+function getDesktopCredentialHelperTrampolinePath() {
+  return Path.join(
+    __dirname,
+    'build',
+    'Release',
+    getDesktopCredentialHelperTrampolineFilename()
+  )
+}
+
+function getDesktopCredentialHelperTrampolineFilename() {
+  return process.platform === 'win32'
+    ? 'desktop-credential-helper-trampoline.exe'
+    : 'desktop-credential-helper-trampoline'
+}
+
 function getSSHWrapperPath() {
   return Path.join(__dirname, 'build', 'Release', getSSHWrapperFilename())
 }
@@ -26,6 +41,8 @@ function getSSHWrapperFilename() {
 module.exports = {
   getDesktopAskpassTrampolinePath,
   getDesktopAskpassTrampolineFilename,
+  getDesktopCredentialHelperTrampolinePath,
+  getDesktopCredentialHelperTrampolineFilename,
   getSSHWrapperPath,
   getSSHWrapperFilename,
 }
