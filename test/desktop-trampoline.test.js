@@ -43,7 +43,7 @@ describe('desktop-trampoline', () => {
 
     const port = await startTrampolineServer()
     const env = {
-      DESKTOP_TRAMPOLINE_IDENTIFIER: '123456',
+      DESKTOP_TRAMPOLINE_TOKEN: '123456',
       DESKTOP_PORT: port,
       INVALID_VARIABLE: 'foo bar',
     }
@@ -56,7 +56,7 @@ describe('desktop-trampoline', () => {
     // output[2] is the number of env variables
     const outputEnv = output.slice(3)
     expect(outputEnv).toHaveLength(1)
-    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=123456')
+    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_TOKEN=123456')
 
     server.close()
   })
