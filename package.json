@@ -15,9 +15,9 @@
     "test": "jest",
     "lint": "prettier -c **/*.js **/*.md",
     "lint:fix": "prettier --write **/*.js **/*.md",
-    "prebuild-napi-x64": "prebuild -t 3 -r napi -a x64 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
-    "prebuild-napi-ia32": "prebuild -t 3 -r napi -a ia32 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
-    "prebuild-napi-arm64": "prebuild -t 3 -r napi -a arm64 --strip --include-regex \"(desktop-trampoline|ssh-wrapper)(\\.exe)?$\"",
+    "prebuild-napi-x64": "prebuild -t 3 -r napi -a x64 --strip --include-regex \"(desktop-(askpass|credential-helper)-trampoline|ssh-wrapper)(\\.exe)?$\"",
+    "prebuild-napi-ia32": "prebuild -t 3 -r napi -a ia32 --strip --include-regex \"(desktop-(askpass|credential-helper)-trampoline|ssh-wrapper)(\\.exe)?$\"",
+    "prebuild-napi-arm64": "prebuild -t 3 -r napi -a arm64 --strip --include-regex \"(desktop-(askpass|credential-helper)-trampoline|ssh-wrapper)(\\.exe)?$\"",
     "prebuild-all": "yarn prebuild-napi-x64 && yarn prebuild-napi-ia32 && yarn prebuild-napi-arm64",
     "upload": "node ./script/upload.js"
   },
