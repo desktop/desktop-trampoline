@@ -6,8 +6,19 @@
 
 #include "socket.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
 #define BUFFER_LENGTH 4096
 #define MAXIMUM_NUMBER_LENGTH 33
+
+#ifdef CREDENTIAL_HELPER
+  #define DESKTOP_TRAMPOLINE_IDENTIFIER "CREDENTIALHELPER"
+#else
+  #define DESKTOP_TRAMPOLINE_IDENTIFIER "ASKPASS"
+#endif
+
 
 #define WRITE_STRING_OR_EXIT(dataName, dataString) \
 if (writeSocket(socket, dataString, strlen(dataString) + 1) != 0) { \
@@ -136,10 +147,10 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
 
 int main(int argc, char **argv, char **envp) {
 
-  #ifdef CREDENTIAL_HELPER
-    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "CREDENTIALHELPER", 1);
+  #ifdef WINDOWS
+    SetEnvironmentVariable("DESKTOP_TRAMPOLINE_IDENTIFIER", DESKTOP_TRAMPOLINE_IDENTIFIER);
   #else
-    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "ASKPASS", 1);
+    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", DESKTOP_TRAMPOLINE_IDENTIFIER, 1);
   #endif
 
   if (initializeNetwork() != 0) {
