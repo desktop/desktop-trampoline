@@ -45,8 +45,6 @@ describe('desktop-trampoline', () => {
     const env = {
       DESKTOP_TRAMPOLINE_IDENTIFIER: '123456',
       DESKTOP_PORT: port,
-      DESKTOP_USERNAME: 'sergiou87',
-      DESKTOP_USERNAME_FAKE: 'fake-user',
       INVALID_VARIABLE: 'foo bar',
     }
     const opts = { env }
@@ -57,9 +55,8 @@ describe('desktop-trampoline', () => {
     expect(outputArguments).toStrictEqual(['baz'])
     // output[2] is the number of env variables
     const outputEnv = output.slice(3)
-    expect(outputEnv).toHaveLength(2)
+    expect(outputEnv).toHaveLength(1)
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=123456')
-    expect(outputEnv).toContain(`DESKTOP_USERNAME=sergiou87`)
 
     server.close()
   })

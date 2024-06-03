@@ -17,12 +17,10 @@ if (writeSocket(socket, dataString, strlen(dataString) + 1) != 0) { \
 
 // This is a list of valid environment variables that GitHub Desktop might
 // send or expect to receive.
-#define NUMBER_OF_VALID_ENV_VARS 4
+#define NUMBER_OF_VALID_ENV_VARS 2
 static const char *sValidEnvVars[NUMBER_OF_VALID_ENV_VARS] = {
   "DESKTOP_TRAMPOLINE_IDENTIFIER",
   "DESKTOP_TRAMPOLINE_TOKEN",
-  "DESKTOP_USERNAME",
-  "DESKTOP_ENDPOINT",
 };
 
 /** Returns 1 if a given env variable is valid, 0 otherwise. */
