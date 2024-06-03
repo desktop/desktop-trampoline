@@ -137,9 +137,9 @@ int runTrampolineClient(SOCKET *outSocket, int argc, char **argv, char **envp) {
 int main(int argc, char **argv, char **envp) {
 
   #ifdef CREDENTIAL_HELPER
-    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "CREDENTIALHELPER");
-  #elif
-    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "ASKPASS");
+    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "CREDENTIALHELPER", 1);
+  #else
+    setenv("DESKTOP_TRAMPOLINE_IDENTIFIER", "ASKPASS", 1);
   #endif
 
   if (initializeNetwork() != 0) {
