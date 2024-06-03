@@ -115,7 +115,7 @@ describe('desktop-trampoline', () => {
     expect(output.at(-1)).toBe('')
   })
 
-  it("askpass handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var", async () => {
+  it('askpass handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var', async () => {
     const [portPromise, outputPromise] = captureSession()
     const port = await portPromise
 
@@ -132,7 +132,7 @@ describe('desktop-trampoline', () => {
     expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=ASKPASS')
   })
 
-  it("credential handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var", async () => {
+  it('credential handler ignores the DESKTOP_TRAMPOLINE_IDENTIFIER env var', async () => {
     const [portPromise, outputPromise] = captureSession()
     const port = await portPromise
 
@@ -146,6 +146,8 @@ describe('desktop-trampoline', () => {
     const output = await outputPromise
     const envc = parseInt(output[2])
     const outputEnv = output.slice(3, 3 + envc)
-    expect(outputEnv).toContain('DESKTOP_TRAMPOLINE_IDENTIFIER=CREDENTIALHELPER')
+    expect(outputEnv).toContain(
+      'DESKTOP_TRAMPOLINE_IDENTIFIER=CREDENTIALHELPER'
+    )
   })
 })
