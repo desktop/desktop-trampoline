@@ -24,14 +24,14 @@ jobs:
             friendlyName: macOS
           - os: windows-latest
             friendlyName: Windows
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             friendlyName: Linux
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
       - name: Install Python setup tools
